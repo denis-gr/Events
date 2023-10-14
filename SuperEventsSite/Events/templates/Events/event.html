@@ -1,0 +1,7 @@
+<body>
+    <script src="http://cosmic.mearie.org/2011/01/qrjs/qr.js"></script>
+    <script>
+        const text = "https://t.me/SuperEvents_BOT?start=event-{{ page.id }}-none";
+        document.querySelector("body").append(QRCode.generateHTML(text, {}))
+    </script>
+</body>
