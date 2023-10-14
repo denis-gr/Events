@@ -1,0 +1,10 @@
+<body>
+    <script src="http://cosmic.mearie.org/2011/01/qrjs/qr.js"></script>
+    {% block url %}{% endblock url %}
+    <script>
+        const a = document.createElement("a")
+        a.href = text;
+        a.append(QRCode.generateHTML(text, {}));
+        document.querySelector("body").append(a);
+    </script>
+</body>
