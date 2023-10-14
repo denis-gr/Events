@@ -91,8 +91,9 @@ class Performance(Page):
 
 
 class GamePoint(blocks.StructBlock):
-    Performance_or_hall = blocks.PageChooserBlock(page_type=["Events.Hall", "Events.Performance"], help_text="Это выступление или зал будет связан с этим пунтом игры, учанитик получит информацию")
+    Performance_or_hall = blocks.PageChooserBlock(page_type=["Events.Hall", "Events.Performance"], help_text="Это выступление или зал будет связан с этим пунтом игры, учанитик получит информацию", required=False)
     text = blocks.TextBlock(help_text="Этот текст будет высвечиться вместе с сообщением о выступлении или зале, это может быть например загадка")   
+    answers = blocks.TextBlock(help_text="Правильные варинты ответа по каждому на строку, регистр, пробельные и служебные символы  не учиываеються", required=False)
 
 
 class Game(Page):
@@ -110,3 +111,17 @@ class Game(Page):
         FieldPanel("description"),
         FieldPanel("points"),
     ]
+
+
+class TelegramUsers(models.Model):
+    telegram_id = models.IntegerField(unique=True, primary_key=True)
+    telegram_username = models.IntegerField(unique=True)
+    #participated_in_events = models.ManyToManyField(Event)
+    #participated_in_games = models.ManyToManyField(Game)
+
+
+class GamePoint2TelegramUsers(models.Model):
+    telegram_id = models.IntegerField()
+    game_id = models.IntegerField()
+    point_hash = models.IntegerField()
+    datetime = models.DateTimeField(auto_now_add=True)

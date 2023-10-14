@@ -19,11 +19,19 @@ class ChoiseEventHallCallbackFactory(aiogram.filters.callback_data.CallbackData,
     path: str | int
 
 
-def get_choise_event_hall_keyboard(halls):
+class ChoiseEventGameCallbackFactory(aiogram.filters.callback_data.CallbackData, prefix="ChoiseGameHall"):
+    id: str | int
+    path: str | int
+
+
+def get_choise_event_hall_keyboard(halls, games):
     builder = aiogram.utils.keyboard.InlineKeyboardBuilder()
     for i, hall in halls:
         builder.button(text=hall["title"],
-            callback_data=ChoiseEventHallCallbackFactory(id=hall["id"], path=hall["path"]))
+            callback_data=ChoiseEventGameCallbackFactory(id=hall["id"], path=hall["path"]))
+    for i, hall in games:
+        builder.button(text=hall["title"],
+            callback_data=ChoiseEventGameCallbackFactory(id=hall["id"], path=hall["path"]))
     return builder.as_markup()
 
 
