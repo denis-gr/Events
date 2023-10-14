@@ -1,2 +1,4 @@
 **.pyc
 **.sqllite3
+**/media/**
+db.sqllite3
