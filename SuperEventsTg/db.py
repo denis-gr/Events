@@ -10,13 +10,25 @@ class DB:
         events = pd.read_sql("SELECT * FROM Events_event WHERE is_public = 1", self.connection)
         pages_ids = ','.join(map(str, events.page_ptr_id))
         pages = pd.read_sql(f"SELECT * FROM wagtailcore_page WHERE id in ({pages_ids})", self.connection)
-        results = pages.join(events)
+        results = pd.merge(pages, events, left_on='id', right_on='page_ptr_id')
         return results
 
     def getEvent(self, id):
         events = pd.read_sql(F"SELECT * FROM Events_event WHERE page_ptr_id = {id}", self.connection)
         pages = pd.read_sql(f"SELECT * FROM wagtailcore_page WHERE id = {id}", self.connection)
-        results = pages.join(events)
+        results = pd.merge(pages, events, left_on='id', right_on='page_ptr_id')
+        return results
+    
+    def getHall(self, id):
+        halls = pd.read_sql(F"SELECT * FROM Events_hall WHERE page_ptr_id = {id}", self.connection)
+        pages = pd.read_sql(f"SELECT * FROM wagtailcore_page WHERE id = {id}", self.connection)
+        results = pd.merge(pages, halls, left_on='id', right_on='page_ptr_id')
+        return results
+
+    def getPerformances(self, id):
+        performances = pd.read_sql(F"SELECT * FROM Events_performance WHERE page_ptr_id = {id}", self.connection)
+        pages = pd.read_sql(f"SELECT * FROM wagtailcore_page WHERE id = {id}", self.connection)
+        results = pd.merge(pages, performances, left_on='id', right_on='page_ptr_id')
         return results
 
     def getHallsFromEvent(self, event):
@@ -24,14 +36,14 @@ class DB:
         pages = pd.read_sql(f"SELECT * FROM wagtailcore_page WHERE path LIKE '{e_path}____'", self.connection) 
         halls_ids = ','.join(map(str, pages.id))
         halls = pd.read_sql(f"SELECT * FROM Events_hall WHERE page_ptr_id in ({halls_ids})", self.connection)
-        results = pages.join(halls)
+        results = pd.merge(pages, halls, left_on='id', right_on='page_ptr_id')
         return results
 
     def getPerformancesFromHall(self, hall):
         h_path = hall["path"][0]
         pages = pd.read_sql(f"SELECT * FROM wagtailcore_page WHERE path LIKE '{h_path}____'", self.connection) 
         p_ids = ','.join(map(str, pages.id))
-        halls = pd.read_sql(f"SELECT * FROM Events_performance WHERE page_ptr_id in ({p_ids})", self.connection)
-        results = pages.join(halls)
+        p_s = pd.read_sql(f"SELECT * FROM Events_performance WHERE page_ptr_id in ({p_ids})", self.connection)
+        results = pd.merge(pages, p_s, left_on='id', right_on='page_ptr_id')
         return results
 
