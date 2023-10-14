@@ -1,7 +1,10 @@
 from django.db import models
 
 from wagtail.models import Page
+from wagtail import blocks
 from wagtail.admin.panels import FieldPanel
+from wagtail.fields import StreamField
+
 
 
 class Events(Page):
@@ -11,7 +14,7 @@ class Events(Page):
 
 class Event(Page):
     parent_page_types = ["Events"]
-    subpage_types = ["Hall"]
+    subpage_types = ["Hall", "Game"]
 
     #title
     is_public = models.BooleanField(default=True, verbose_name="Видно всем")
@@ -84,4 +87,26 @@ class Performance(Page):
         FieldPanel("start_datetime"),
         FieldPanel("end_datetime"),
         FieldPanel("leads_text"),
+    ]
+
+
+class GamePoint(blocks.StructBlock):
+    Performance_or_hall = blocks.PageChooserBlock(page_type=["Events.Hall", "Events.Performance"], help_text="Это выступление или зал будет связан с этим пунтом игры, учанитик получит информацию")
+    text = blocks.TextBlock(help_text="Этот текст будет высвечиться вместе с сообщением о выступлении или зале, это может быть например загадка")   
+
+
+class Game(Page):
+    parent_page_types = ["Event"]
+    subpage_types = []
+
+    #title
+    photo = models.ImageField(verbose_name="Фото", blank=True, null=True)
+    description = models.TextField(verbose_name="Описание", blank=True, null=True)
+    points = StreamField([('point', blocks.ListBlock(GamePoint()))], use_json_field=True, min_num=1, verbose_name="Точки игры", help_text="Игра считается пройдейнной, если учасник прошел через вссе")
+    
+
+    content_panels = Page.content_panels + [
+        FieldPanel("photo"),
+        FieldPanel("description"),
+        FieldPanel("points"),
     ]
