@@ -14,31 +14,31 @@ class DB:
         pages_ids = ','.join(map(str, events.page_ptr_id))
         pages = pd.read_sql(f"SELECT * FROM wagtailcore_page WHERE id in ({pages_ids})", self.connection)
         results = pd.merge(pages, events, left_on='id', right_on='page_ptr_id')
-        return results
+        return results[results.live == 1]
 
     def getEvent(self, id):
         events = pd.read_sql(F"SELECT * FROM Events_event WHERE page_ptr_id = {id}", self.connection)
         pages = pd.read_sql(f"SELECT * FROM wagtailcore_page WHERE id = {id}", self.connection)
         results = pd.merge(pages, events, left_on='id', right_on='page_ptr_id')
-        return results
+        return results[results.live == 1]
     
     def getHall(self, id):
         halls = pd.read_sql(F"SELECT * FROM Events_hall WHERE page_ptr_id = {id}", self.connection)
         pages = pd.read_sql(f"SELECT * FROM wagtailcore_page WHERE id = {id}", self.connection)
         results = pd.merge(pages, halls, left_on='id', right_on='page_ptr_id')
-        return results
+        return results[results.live == 1]
     
     def getGame(self, id):
         games = pd.read_sql(F"SELECT * FROM Events_game WHERE page_ptr_id = {id}", self.connection)
         pages = pd.read_sql(f"SELECT * FROM wagtailcore_page WHERE id = {id}", self.connection)
         results = pd.merge(pages, games, left_on='id', right_on='page_ptr_id')
-        return results
+        return results[results.live == 1]
 
     def getPerformances(self, id):
         performances = pd.read_sql(F"SELECT * FROM Events_performance WHERE page_ptr_id = {id}", self.connection)
         pages = pd.read_sql(f"SELECT * FROM wagtailcore_page WHERE id = {id}", self.connection)
         results = pd.merge(pages, performances, left_on='id', right_on='page_ptr_id')
-        return results
+        return results[results.live == 1]
 
     def getHallsFromEvent(self, event):
         e_path = event["path"][0]
@@ -46,7 +46,7 @@ class DB:
         halls_ids = ','.join(map(str, pages.id))
         halls = pd.read_sql(f"SELECT * FROM Events_hall WHERE page_ptr_id in ({halls_ids})", self.connection)
         results = pd.merge(pages, halls, left_on='id', right_on='page_ptr_id')
-        return results
+        return results[results.live == 1]
 
     def getGamesFromEvent(self, event):
         e_path = event["path"][0]
@@ -54,7 +54,7 @@ class DB:
         games_ids = ','.join(map(str, pages.id))
         games = pd.read_sql(f"SELECT * FROM Events_game WHERE page_ptr_id in ({games_ids})", self.connection)
         results = pd.merge(pages, games, left_on='id', right_on='page_ptr_id')
-        return results
+        return results[results.live == 1]
 
     def getPerformancesFromHall(self, hall):
         h_path = hall["path"][0]
@@ -62,7 +62,7 @@ class DB:
         p_ids = ','.join(map(str, pages.id))
         p_s = pd.read_sql(f"SELECT * FROM Events_performance WHERE page_ptr_id in ({p_ids})", self.connection)
         results = pd.merge(pages, p_s, left_on='id', right_on='page_ptr_id')
-        return results
+        return results[results.live == 1]
     
     def tryCreateTgUser(self, id, username):
         try:
