@@ -164,7 +164,7 @@ db: DB, callback_data: ChoiseEventGameCallbackFactory, state: FSMContext):
         if gp.get("Performance_or_hall"):
             r1 = db.getPerformances(gp["Performance_or_hall"])
             r2 = db.getHall(gp["Performance_or_hall"])
-            r = r1.title[0] if len(r1) else (r2.title[0] if len(r2) else None)
+            r = r1.title[0] if len(r1) else (r2.title[0] if len(r2) else "Отсуствует")
             gp["Performance_or_hall"] = r
             page_id = r1.id[0] if len(r1) else r2.id[0]
             if not len(db.get_partisipatment(callback.from_user.id, page_id)):

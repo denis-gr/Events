@@ -11,6 +11,7 @@ def get_choise_event_keyboard(events):
     for i, event in events:
         builder.button(text=event["title"],
             callback_data=ChoiseEventCallbackFactory(id=event["id"], path=event["path"]))
+    builder.adjust(1)
     return builder.as_markup()
 
 
@@ -34,6 +35,7 @@ def get_choise_event_hall_keyboard(halls, games):
     for i, hall in games:
         builder.button(text=hall["title"],
             callback_data=ChoiseEventGameCallbackFactory(id=hall["id"], path=hall["path"], is_hall=False))
+    builder.adjust(1)
     return builder.as_markup()
 
 
@@ -46,4 +48,5 @@ def get_choise_hall_perfs_keyboard(halls):
     for i, pref in halls:
         builder.button(text=pref["title"],
             callback_data=ChoiseHallPerfsCallbackFactory(id=pref["id"]))
+    builder.adjust(1)
     return builder.as_markup()

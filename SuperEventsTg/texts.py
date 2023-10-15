@@ -10,7 +10,7 @@ messages = {
     "game_over": "Вы успешно прошли этот квест",
     "question": lambda allgp_l, curgp_l, gp: f"""Пройденно этапов: {curgp_l} / {allgp_l}
 Текст этапа: {gp.get('text', 'Отсуствует')}
-Место этапа: {gp.get('Performance_or_hall', 'Отсуствует')} #TODO
+Место этапа: {gp.get('Performance_or_hall', 'Отсуствует')}
 """,
     "correct_answer": "Правильно",
     "incorrect_answer": "Неправильно(\nПопробуйте ещё раз или перезапустите бота",
