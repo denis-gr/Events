@@ -1,13 +1,20 @@
 import sqlite3
 import json
+import os
 import datetime
 
 import pandas as pd
+from mysql.connector import connect
 
 
 class DB:
     def __init__(self):
-        self.connection = sqlite3.connect("../SuperEventsSite/db.sqlite3")
+        self.connection = connect(
+                host=os.environ.get("DB_HOST"),
+                user=os.environ.get("DB_USER"),
+                password=os.environ.get("DB_PASS"),
+            )
+        #self.connection = sqlite3.connect("../SuperEventsSite/db.sqlite3")
 
     def getAllEvents(self):
         events = pd.read_sql("SELECT * FROM Events_event WHERE is_public = 1", self.connection)

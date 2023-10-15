@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  mysql_db:
+    image: mysql:8
+    ports:
+      - "3306:3306"
+    env_file:
+      - secret.env
+    environment:
+      MYSQL_DATABASE: DB
+      MYSQL_USER: hackton
+    volumes:
+      - ./dbdata:/var/lib/mysql/
+  website:
+    restart: always
+    env_file:
+      - secret.env
+    environment:
+      DJANGO_SETTINGS_MODULE: Events.settings.dev
+      DB_NAME: DB
+      DB_USER: hackton
+      DB_HOST: mysql_db
+      DB_PORT: 3306
+    build:
+      context: SuperEventsSite
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./website:/app/Events
+    depends_on:
+      - db
+  bot:
+    restart: always
+    build:
+      context: SuperEventsTg
+      dockerfile: ./Dockerfile
+    env_file:
+      - secret.env
+    environment:
+      DB_NAME: DB
+      DB_USER: hackton
+      DB_HOST: mysql_db
+      DB_PORT: 3306
+    depends_on:
+      - db
+volumes:
+  website:
