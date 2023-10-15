@@ -125,3 +125,9 @@ class GamePoint2TelegramUsers(models.Model):
     game_id = models.IntegerField()
     point_hash = models.IntegerField()
     datetime = models.DateTimeField(auto_now_add=True)
+
+
+class Partisipatment(models.Model):
+    telegram_id = models.IntegerField()
+    page_id = models.IntegerField()
+    datetime = models.DateTimeField(auto_now_add=True)

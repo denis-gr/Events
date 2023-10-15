@@ -17,18 +17,32 @@ dp0 = aiogram.Router()
 async def cmd_start(mes: aiogram.types.Message,
 command: aiogram.filters.CommandObject, db: DB, state: FSMContext,
 ):
-    await state.clear()
+    await state.set_state(state=None)
     db.tryCreateTgUser(mes.from_user.id, mes.from_user.username)
     await mes.answer(_("start_mes"))
-    typepage, id, extra = (command.args or "none-none").split("-")
-    await {
-        "event": choise_event_m,
-        "hall": choise_hall_m,
-        "performance": choise_pref_m,
-        "game": choise_game_m,
-        "none": lambda *args,  **kwargs: None
-    }[typepage](mes, db=db, id=id)
+    typepage, id, extra = (command.args or "none-none-none").split("-")
+    if typepage != "none":
+        await {
+            "event": choise_event_m,
+            "hall": choise_hall_m,
+            "performance": choise_pref_m,
+            "game": choise_game_m,
+            "check": markPartisipament,
+        }[typepage](mes, db=db, id=id, state=state)
 
+
+@dp0.message(aiogram.filters.Command("help"))
+async def cmd_start(mes: aiogram.types.Message,
+command: aiogram.filters.CommandObject, db: DB, state: FSMContext,
+):
+    await mes.answer(_("help_mes"))
+
+
+@dp0.message(aiogram.filters.Command("support"))
+async def cmd_start(mes: aiogram.types.Message,
+command: aiogram.filters.CommandObject, db: DB, state: FSMContext,
+):
+    await mes.answer(_("support_mes"))
 
 
 class IsState(aiogram.filters.Filter):
@@ -61,6 +75,15 @@ dp2.message.filter(IsState(AnswerGamePointStatesGroup.answer))
 dp0.include_router(dp)
 dp0.include_router(dp2)
 
+@dp.message(aiogram.filters.Command("current_event"))
+async def cmd_get_public_events(mes: aiogram.types.Message, 
+command: aiogram.filters.CommandObject, db: DB, state: FSMContext
+):
+    data = await state.get_data()
+    if "current_event_id" in data:
+        return await choise_event_m(mes, db, data["current_event_id"], state)
+    await mes.answer(_("events_no_choise"))
+    
 
 @dp.message(aiogram.filters.Command("get_public_events"))
 async def cmd_get_public_events(mes: aiogram.types.Message, 
@@ -79,7 +102,8 @@ command: aiogram.filters.CommandObject, db: DB
 
 @dp.callback_query(ChoiseEventCallbackFactory.filter())
 async def choise_event_cq(callback: aiogram.types.CallbackQuery, 
-db: DB, callback_data: ChoiseEventCallbackFactory):
+db: DB, callback_data: ChoiseEventCallbackFactory, state: FSMContext):
+    await state.update_data(current_event_id=callback_data.id)
     event = db.getEvent(callback_data.id)
     halls = db.getHallsFromEvent({ "path": [callback_data.path] })
     halls = halls.iterrows()
@@ -92,7 +116,8 @@ db: DB, callback_data: ChoiseEventCallbackFactory):
 
 
 async def choise_event_m(mes: aiogram.types.Message, 
-db: DB, id: int):
+db: DB, id: int, state: FSMContext):
+    await state.update_data(current_event_id=id)
     event = db.getEvent(id)
     halls = db.getHallsFromEvent(event)
     halls = halls.iterrows()
@@ -115,7 +140,7 @@ db: DB, callback_data: ChoiseEventHallCallbackFactory):
 
 
 async def choise_hall_m(mes: aiogram.types.Message, 
-db: DB, id: int):
+db: DB, id: int, state: FSMContext):
     hall = db.getHall(id)
     perfs = db.getPerformancesFromHall(hall)
     perfs = perfs.iterrows()
@@ -139,8 +164,13 @@ db: DB, callback_data: ChoiseEventGameCallbackFactory, state: FSMContext):
         if gp.get("Performance_or_hall"):
             r1 = db.getPerformances(gp["Performance_or_hall"])
             r2 = db.getHall(gp["Performance_or_hall"])
-            r = r1.title[0] or r2.title[0] or None
+            r = r1.title[0] if len(r1) else (r2.title[0] if len(r2) else None)
             gp["Performance_or_hall"] = r
+            page_id = r1.id[0] if len(r1) else r2.id[0]
+            if not len(db.get_partisipatment(callback.from_user.id, page_id)):
+                await callback.message.edit_text(_("not_partisipatment", title=r), reply_markup=None) #Клава
+                await callback.answer()
+                return
         await callback.message.edit_text(_("question", allgp_l=allgp_l, curgp_l=curgp_l, gp=gp), reply_markup=None) #Клава
         await callback.answer()
         if gp.get("answers"): 
@@ -166,8 +196,12 @@ db: DB, id: int, state: FSMContext):
         if gp.get("Performance_or_hall"):
             r1 = db.getPerformances(gp["Performance_or_hall"])
             r2 = db.getHall(gp["Performance_or_hall"])
-            r = r1.title[0] or r2.title[0] or None
+            r = r1.title[0] if len(r1) else (r2.title[0] if len(r2) else None)
             gp["Performance_or_hall"] = r
+            page_id = r1.id[0] if len(r1) else r2.id[0]
+            if not len(db.get_partisipatment(mes.from_user.id, page_id)):
+                await mes.answer(_("not_partisipatment", title=r), reply_markup=None) #Клава
+                return
         await mes.answer(_("question", allgp_l=allgp_l, curgp_l=curgp_l, gp=gp), reply_markup=None) #Клава
         if gp.get("answers"):
             await state.update_data(gp_id=gp["id"], game_id=id)
@@ -185,7 +219,7 @@ db: DB, callback_data: ChoiseHallPerfsCallbackFactory):
 
 
 async def choise_pref_m(mes: aiogram.types.Message, 
-db: DB, id: int):
+db: DB, id: int, state: FSMContext):
     pref = db.getPerformances(id)
     await mes.answer(_("pref", pref=pref), reply_markup=None) #TODO
 
@@ -206,3 +240,7 @@ db: DB, state: FSMContext):
             await state.clear()
             return await choise_game_m(mes, db, data["game_id"], state)
     await mes.answer(_("incorrect_answer"))
+
+async def markPartisipament(mes: aiogram.types.Message, 
+db: DB, id: int, state: FSMContext):
+    db.mark_partisipatment(mes.from_user.id, id)

@@ -81,6 +81,19 @@ class DB:
             "datetime": datetime.datetime.now(),
         }]).to_sql("Events_gamepoint2telegramusers", self.connection, if_exists="append", index=False)
     
+    def mark_partisipatment(self, tg_user_id, page_id):
+        pd.DataFrame([{
+            "telegram_id": tg_user_id,
+            "page_id": page_id,
+            "datetime": datetime.datetime.now(),
+        }]).to_sql("Events_partisipatment", self.connection, if_exists="append", index=False)
+        
+    def get_partisipatment(self, tg_user_id, page_id):
+        return pd.read_sql(f"""
+            SELECT * FROM Events_partisipatment
+            WHERE (telegram_id = {tg_user_id}) AND (page_id = {page_id})
+        """, self.connection)
+
     def getGamePoint(self, tg_user_id, game_id):
         return pd.read_sql(f"""
             SELECT * FROM Events_gamepoint2telegramusers

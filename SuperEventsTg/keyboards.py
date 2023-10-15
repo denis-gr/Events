@@ -47,4 +47,3 @@ def get_choise_hall_perfs_keyboard(halls):
         builder.button(text=pref["title"],
             callback_data=ChoiseHallPerfsCallbackFactory(id=pref["id"]))
     return builder.as_markup()
-

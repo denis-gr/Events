@@ -2,9 +2,14 @@
     <script src="http://cosmic.mearie.org/2011/01/qrjs/qr.js"></script>
     {% block url %}{% endblock url %}
     <script>
+        const text2 = "https://t.me/SuperEvents_BOT?start=check-{{ page.id }}-none";
         const a = document.createElement("a")
         a.href = text;
         a.append(QRCode.generateHTML(text, {}));
         document.querySelector("body").append(a);
+        const a2 = document.createElement("a")
+        a2.href = text2;
+        a2.append(QRCode.generateHTML(text2, {}));
+        document.querySelector("body").append(a2);
     </script>
 </body>
