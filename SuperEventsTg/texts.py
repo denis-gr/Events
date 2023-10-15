@@ -14,7 +14,7 @@ messages = {
 """,
     "correct_answer": "Правильно",
     "incorrect_answer": "Неправильно(\nПопробуйте ещё раз или перезапустите бота",
-    "not_partisipatment": lambda title: f"Вы не были на {title}",
+    "not_partisipatment": lambda title: f"Вы не были на {title}. Выполните /current_event, чтоб вернуться к мероприятию и выберете игру (при необходимости отсканируйте код мероприятия ещё раз)",
     "help_mes": "Используйте /get_public_events, что посметроть список открытых меропритий, /current_event, чтобы вернуться в мероприятию сканируйте QR коды, чтобы запиываться на закрытые меропрития и делать отметки об участии",
     "support_mes": "Пишите на wymefnxjqs@rambler.ru",
     "events_no_choise": "Вы ещё не выбрали мероприятия",
