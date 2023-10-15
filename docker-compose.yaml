@@ -28,7 +28,7 @@ services:
     volumes:
       - ./website:/app/Events
     depends_on:
-      - db
+      - mysql_db
   bot:
     restart: always
     build:
@@ -42,6 +42,6 @@ services:
       DB_HOST: mysql_db
       DB_PORT: 3306
     depends_on:
-      - db
+      - mysql_db
 volumes:
   website:
