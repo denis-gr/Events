@@ -8,7 +8,7 @@ messages = {
     "hall": lambda hall: f"""{hall.title[0]}\n{hall.description[0]}""",
     "pref": lambda pref: f"""{pref.title[0]}\n{pref.description[0]}""",
     "game_over": "Вы успешно прошли этот квест",
-    "question": lambda allgp_l, curgp_l, gp: f"""Пройденно этапов: {allgp_l} / {curgp_l}
+    "question": lambda allgp_l, curgp_l, gp: f"""Пройденно этапов: {curgp_l} / {allgp_l}
 Текст этапа: {gp.get('text', 'Отсуствует')}
 Место этапа: {gp.get('Performance_or_hall', 'Отсуствует')} #TODO
 """,

@@ -1,5 +1,6 @@
 import sqlite3
 import json
+import datetime
 
 import pandas as pd
 
@@ -68,7 +69,7 @@ class DB:
             pd.DataFrame([{
                 "telegram_id": id,
                 "telegram_username": username,
-            }]).to_sql("Events_telegramusers", self.connection)
+            }]).to_sql("Events_telegramusers", self.connection,if_exists="append", index_label='telegram_id')
         except ValueError:
             pass
     
@@ -77,18 +78,23 @@ class DB:
             "telegram_id": tg_user_id,
             "game_id": game_id,
             "point_hash": gp_id,
-        }]).to_sql("Events_gamepoint2telegramusers", self.connection)
+            "datetime": datetime.datetime.now(),
+        }]).to_sql("Events_gamepoint2telegramusers", self.connection, if_exists="append", index=False)
     
     def getGamePoint(self, tg_user_id, game_id):
         return pd.read_sql(f"""
             SELECT * FROM Events_gamepoint2telegramusers
             WHERE (telegram_id = {tg_user_id}) AND (game_id = {game_id})
-        """, self.connection) 
+        """, self.connection)
         
     
     def getAllGamePoint(self, game_id):
         df =  pd.read_sql(f"""
             SELECT * FROM Events_game
-            WHERE (game_id = {game_id})
+            WHERE (page_ptr_id = {game_id})
         """, self.connection)
-        return map(lambda x: x["value"], json.loads(df.points[0])["point"])
+        if len(df.points):
+            result = []
+            for i in json.loads(df.points[0])[0]["value"]:
+                result.append(i["value"] | {"id":i["id"]})
+            return result
